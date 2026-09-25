@@ -3,9 +3,11 @@ import OpenAI from "openai";
 
 const app = express();
 
-// إعداد الاتصال بسيرفرات Groq المجانية
+// إسناد المفتاح مباشرة لضمان عدم توقف السيرفر تحت أي ظرف
+const apiKey = process.env.GROQ_API_KEY || "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";
+
 const client = new OpenAI({
-  apiKey: process.env.GROQ_API_KEY,
+  apiKey: apiKey,
   baseURL: "https://api.groq.com/openai/v1"
 });
 
