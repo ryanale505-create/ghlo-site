@@ -1,15 +1,16 @@
-
 import express from "express";
 import OpenAI from "openai";
 
 const app = express();
+
+// إعداد الاتصال بسيرفرات Groq المجانية
 const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
+  apiKey: process.env.GROQ_API_KEY,
+  baseURL: "https://api.groq.com/openai/v1"
 });
 
 app.use(express.json({ limit: "30kb" }));
 app.use(express.static("."));
-
 
 app.post("/api/chat", async (req, res) => {
   try {
@@ -34,9 +35,7 @@ app.post("/api/chat", async (req, res) => {
           }))
       : [];
 
-    const response = await client.responses.create({
-      model: "gpt-4.1-mini",
-      instructions: `
+    const systemPrompt = `
 أنت رفيق محادثة ذكي في موقع نادي معجبين غلو.
 
 تحدث باللهجة السعودية الطبيعية وبأسلوب عفوي وودود.
@@ -47,8 +46,13 @@ app.post("/api/chat", async (req, res) => {
 إذا غيّر المستخدم الموضوع، تجاوب معه بشكل طبيعي.
 لا تدّع أنك غلو الحقيقية.
 اجعل ردودك مختصرة وممتعة، إلا إذا طلب المستخدم التفصيل.
-`,
-      input: [
+`;
+
+    // طلب الرد من نموذج Llama 3.3 المتاح مجانًا على Groq
+    const response = await client.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      messages: [
+        { role: "system", content: systemPrompt },
         ...safeHistory,
         {
           role: "user",
