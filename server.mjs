@@ -13,11 +13,20 @@ app.post("/api/chat", async (req, res) => {
       return res.status(400).json({ error: "اكتب رسالة أولًا." });
     }
 
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({ error: "مفتاح GEMINI_API_KEY غير مضاف في Render." });
+    }
+
+    // تحويل سجل المحادثة لتنسيق Gemini
     const safeHistory = Array.isArray(history)
       ? history
           .filter(item => ["user", "assistant"].includes(item.role) && typeof item.content === "string")
           .slice(-20)
-          .map(item => ({ role: item.role, content: item.content.slice(0, 2000) }))
+          .map(item => ({
+            role: item.role === "assistant" ? "model" : "user",
+            parts: [{ text: item.content.slice(0, 2000) }]
+          }))
       : [];
 
     const systemPrompt = `
@@ -32,42 +41,45 @@ app.post("/api/chat", async (req, res) => {
 اجعل ردودك مختصرة وممتعة، إلا إذا طلب المستخدم التفصيل.
 `;
 
-    // طلب مباشر لسيرفرات Groq بدون استخدام مكتبة OpenAI
-    const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    const contents = [
+      ...safeHistory,
+      { role: "user", parts: [{ text: message.trim().slice(0, 2000) }] }
+    ];
+
+    // طلب الاتصال المباشر بنموذج Gemini 1.5 Flash المجاني والسريع
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
+    const response = await fetch(geminiUrl, {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
-        messages: [
-          { role: "system", content: systemPrompt.trim() },
-          ...safeHistory,
-          { role: "user", content: message.trim().slice(0, 2000) }
-        ]
+        system_instruction: {
+          parts: [{ text: systemPrompt.trim() }]
+        },
+        contents: contents
       })
     });
 
-    const data = await groqResponse.json();
+    const data = await response.json();
 
-    if (!groqResponse.ok) {
-      console.error("Groq API Error:", data);
-      return res.status(500).json({ error: "خطأ في الاتصال بخدمة Groq." });
+    if (!response.ok) {
+      console.error("Gemini API Error:", data);
+      return res.status(500).json({ error: "خطأ في الاتصال بـ Gemini" });
     }
 
-    res.json({
-      reply: data.choices[0]?.message?.content || "لم يتم استلام رد."
-    });
+    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "لم يتم استلام رد.";
+
+    res.json({ reply });
 
   } catch (error) {
-    console.error("Error:", error);
+    console.error("Server Error:", error);
     res.status(500).json({ error: "صار خطأ أثناء توليد الرد." });
   }
 });
 
 const PORT = process.env.PORT || 3000;
-
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 });
