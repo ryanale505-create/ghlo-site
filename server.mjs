@@ -58,7 +58,7 @@ app.post("/api/chat", async (req, res) => {
     });
 
     res.json({
-      reply: response.output_text
+      reply: response.choices[0].message.content
     });
 
   } catch (error) {
