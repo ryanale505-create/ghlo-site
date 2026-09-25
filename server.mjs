@@ -48,7 +48,6 @@ app.post("/api/chat", async (req, res) => {
 اجعل ردودك مختصرة وممتعة، إلا إذا طلب المستخدم التفصيل.
 `;
 
-    // طلب الرد من نموذج Llama 3.3 المتاح مجانًا على Groq
     const response = await client.chat.completions.create({
       model: "llama-3.3-70b-versatile",
       messages: [
@@ -66,7 +65,7 @@ app.post("/api/chat", async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error);
+    console.error("Error:", error);
     res.status(500).json({
       error: "صار خطأ أثناء توليد الرد."
     });
