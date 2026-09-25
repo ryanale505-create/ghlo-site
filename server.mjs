@@ -8,7 +8,8 @@ const client = new OpenAI({
 });
 
 app.use(express.json({ limit: "30kb" }));
-app.use(express.static("public"));
+app.use(express.static("."));
+
 
 app.post("/api/chat", async (req, res) => {
   try {
