@@ -10,13 +10,13 @@ app.post("/api/chat", async (req, res) => {
     const { message, history = [] } = req.body;
 
     if (!message || typeof message !== "string" || !message.trim()) {
-      return res.status(400).json({ error: "Please enter a message first." });
+      return res.status(400).json({ error: "اكتب رسالة أولًا." });
     }
 
     const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) {
-      console.error("GROQ_API_KEY is missing in environment variables!");
-      return res.status(500).json({ error: "API Key not configured." });
+      console.error("❌ خطأ: لم يتم إيجاد GROQ_API_KEY في متغيرات البيئة بـ Render!");
+      return res.status(500).json({ error: "مفتاح API غير معرف في Render." });
     }
 
     const safeHistory = Array.isArray(history)
@@ -28,17 +28,13 @@ app.post("/api/chat", async (req, res) => {
 
     const systemPrompt = `
 You are a smart, friendly, and engaging AI chat companion on a fan club website dedicated to Gglo (غلو).
-
-CRITICAL INSTRUCTION FOR LANGUAGE & TONE:
 - You MUST ALWAYS respond in natural, authentic Saudi Arabic dialect (اللهجة السعودية).
-- Talk in a friendly, warm, and casual Saudi style (e.g., using terms like "يا هلا", "الله يسعدك", "يا بعدي", etc.).
-- Praise Gglo using creative, sweet, and unique expressions, and chat enthusiastically with the user about their admiration for her.
-- Interact naturally, use light and gentle humor when the context permits.
-- Do NOT repeat the exact same phrases in every response.
-- Ask relevant follow-up questions when appropriate, but do not make every turn a question.
-- Do NOT pretend to be the real Gglo. You are a supportive fan club companion.
-- Keep your answers concise, fun, and delightful unless the user asks for long details.
+- Talk in a friendly, warm, and casual Saudi style.
+- Praise Gglo using creative and sweet expressions.
+- Keep answers concise and fun.
 `;
+
+    console.log("جارٍ إرسال الطلب إلى Groq...");
 
     const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
@@ -47,7 +43,7 @@ CRITICAL INSTRUCTION FOR LANGUAGE & TONE:
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
+        model: "llama-3.1-8b-instant",
         messages: [
           { role: "system", content: systemPrompt.trim() },
           ...safeHistory,
@@ -59,21 +55,24 @@ CRITICAL INSTRUCTION FOR LANGUAGE & TONE:
     const data = await groqResponse.json();
 
     if (!groqResponse.ok) {
-      console.error("Groq Error Response:", data);
-      return res.status(500).json({ error: "Error connecting to AI service." });
+      console.error("❌ خطأ من Groq:", JSON.stringify(data));
+      const detail = data.error?.message || "خطأ غير معروف";
+      return res.status(500).json({ error: `Groq: ${detail}` });
     }
 
-    res.json({
-      reply: data.choices[0]?.message?.content || "لم يتم استلام رد."
-    });
+    const reply = data.choices?.[0]?.message?.content || "لم يتم استلام رد.";
+    console.log("✅ تم استلام الرد بنجاح!");
+
+    res.json({ reply });
 
   } catch (error) {
-    console.error("Server Fetch Error:", error);
-    res.status(500).json({ error: "An error occurred while generating the response." });
+    console.error("❌ خطأ في السيرفر:", error);
+    res.status(500).json({ error: `Server Error: ${error.message}` });
   }
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
+  console.log("فحص المفتاح عند التشغيل:", process.env.GROQ_API_KEY ? "المفتاح متوفر ✅" : "المفتاح مفقود ❌");
 });
