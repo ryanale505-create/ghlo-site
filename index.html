@@ -1,0 +1,362 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>نادي معجبين غلو 👑</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
+:root{--gold:#e9c99c;--cream:#f5dfbd;--wine:#650d20;--dark:#21040a}
+*{box-sizing:border-box}
+body{margin:0;padding:12px;background:radial-gradient(ellipse at top,#650d20,#21040a 75%);color:var(--cream);font-family:Cairo,sans-serif}
+.container{max-width:850px;margin:auto;padding:24px;background:#350711;border:1px solid #a87950;border-radius:22px}
+header{text-align:center;padding:8px 0 20px}
+.crown{font-size:45px;color:var(--gold)}
+h1{margin:0;color:var(--gold);font-size:clamp(25px,6vw,38px);font-weight:900}
+h2{color:var(--gold)}
+.sub,.hint{color:#d8bcae;line-height:1.9;font-size:14px}
+.steps{display:flex;gap:8px;margin-bottom:25px}
+.step{flex:1;text-align:center;padding:10px 4px;border:1px solid #80502e;border-radius:10px;font-size:12px;color:#bca1a0}
+.step.active{background:var(--gold);color:var(--wine);font-weight:900}
+label{display:block;margin:14px 0 7px;font-weight:700;font-size:14px}
+input,select,textarea{width:100%;padding:13px;border-radius:10px;border:1px solid #c8a27c;background:#fff7eb;color:#350711;font:inherit;outline:none}
+textarea{resize:vertical}
+.check{display:flex;gap:10px;align-items:flex-start;line-height:1.9}
+.check input{width:20px;height:20px;margin-top:7px;flex-shrink:0;accent-color:var(--gold)}
+button{padding:13px 18px;border:0;border-radius:11px;font:900 14px Cairo,sans-serif;cursor:pointer}
+.primary{background:var(--gold);color:var(--wine)}
+.secondary{background:transparent;border:1px solid var(--gold);color:var(--gold)}
+button:disabled{opacity:.4;cursor:not-allowed}
+.actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;margin-top:24px}
+.actions button{flex:1}
+.hidden{display:none!important}
+.notice{background:#27050d;border:1px solid #80502e;padding:18px;border-radius:13px;line-height:2;font-size:14px;color:#e6cfc2}
+.card-frame{width:100%;margin:12px auto;border:1px solid #a87950;border-radius:12px;overflow:hidden;background:#21040a}
+.card-canvas{display:block;width:100%;height:auto}
+.card-section{margin-top:24px}
+.card-label{color:var(--gold);font-weight:900}
+#chatBox{height:400px;overflow-y:auto;background:#21040a;border:1px solid #a87950;border-radius:15px;padding:15px;display:flex;flex-direction:column;gap:12px}
+.chat-bubble{max-width:90%;padding:13px 16px;border-radius:14px;line-height:1.9;white-space:pre-wrap;overflow-wrap:anywhere}
+.chat-ai{background:#650d20;color:var(--cream);border:1px solid #80502e;align-self:flex-start}
+.chat-user{background:var(--cream);color:var(--wine);align-self:flex-end}
+.chat-input-row{display:flex;gap:8px;margin-top:14px}
+.chat-input-row input{flex:1;min-width:0}
+footer{text-align:center;font-size:12px;color:#a88986;padding-top:22px}
+@media(max-width:500px){.container{padding:16px}.steps{gap:5px}.step{font-size:10px}.chat-input-row{flex-wrap:wrap}.chat-input-row button{width:100%}}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<div class="crown">♛</div>
+<h1>نادي معجبين غلو</h1>
+<p class="sub">سجّل عضويتك واصنع بطاقتك الخاصة 👑</p>
+</header>
+
+<button class="primary" style="width:100%;margin-bottom:18px" onclick="openChat()">👑 مجلس غلو الذكي — تحدث معنا</button>
+
+<div class="steps" id="steps">
+<div class="step active" id="s1">١. التسجيل</div>
+<div class="step" id="s2">٢. الموافقة</div>
+<div class="step" id="s3">٣. البطاقة</div>
+</div>
+
+<form id="form">
+<section id="p1">
+<h2>📝 بيانات العضوية</h2>
+<p class="sub">أدخل بياناتك وصورتك وكلمتك الخاصة لغلو.</p>
+
+<label for="photo">الصورة الشخصية *</label>
+<input id="photo" type="file" accept="image/*" required>
+
+<label for="name">الاسم الكامل *</label>
+<input id="name" maxlength="60" required placeholder="اكتب اسمك الكامل">
+
+<label for="nickname">اسم العضوية *</label>
+<input id="nickname" maxlength="35" required placeholder="الاسم الذي يظهر على البطاقة">
+
+<label for="age">العمر *</label>
+<input id="age" type="number" min="1" max="120" required placeholder="عمرك">
+
+<label for="gender">الجنس *</label>
+<select id="gender" required>
+<option value="">اختر الجنس</option>
+<option>ذكر</option><option>أنثى</option><option>أفضل عدم الإفصاح</option>
+</select>
+
+<label for="city">المدينة</label>
+<input id="city" maxlength="40" placeholder="مدينتك">
+
+<label for="message">الكلمة التي تهديها لغلو ❤️ *</label>
+<textarea id="message" rows="5" maxlength="500" required placeholder="اكتب رسالتك لغلو..."></textarea>
+
+<div class="actions">
+<span></span>
+<button type="button" class="primary" id="next">التالي: الإرشادات ←</button>
+</div>
+</section>
+
+<section id="p2" class="hidden">
+<h2>📜 الإرشادات وإخلاء المسؤولية</h2>
+<div class="notice">
+<strong style="color:var(--gold)">إرشادات نادي معجبين غلو</strong>
+<ul>
+<li>هذا الموقع ترفيهي وغير رسمي.</li>
+<li>لا تدخل معلومات حساسة مثل رقم الهوية أو بيانات الدفع.</li>
+<li>البطاقة ترفيهية ولا تمنح امتيازات رسمية.</li>
+<li>يُمنع استخدام البطاقة لانتحال شخصية أو جهة أخرى.</li>
+<li>أنت مسؤول عن الصورة والرسالة التي تكتبها.</li>
+<li>بيانات التسجيل لا تُحفظ في قاعدة بيانات في هذه النسخة.</li>
+</ul>
+</div>
+<label class="check">
+<input type="checkbox" id="agree">
+<span>أقر بأنني قرأت الإرشادات وإخلاء المسؤولية وأوافق عليها، وأطلب إصدار البطاقة بالبيانات والصورة والرسالة التي أدخلتها.</span>
+</label>
+<div class="actions">
+<button type="button" class="secondary" id="back">→ رجوع</button>
+<button type="submit" class="primary" id="submit" disabled>أوافق وأصدر البطاقة ✓</button>
+</div>
+</section>
+</form>
+
+<section id="p3" class="hidden">
+<h2>🎉 تم إصدار بطاقة العضوية</h2>
+<p class="sub" id="success"></p>
+<div class="card-section">
+<div class="card-label">👑 الوجه الأمامي — بيانات العضو</div>
+<div class="card-frame"><canvas id="front" class="card-canvas" width="1600" height="1000"></canvas></div>
+<button class="primary" style="width:100%" id="downloadFront">⬇ تحميل الوجه الأمامي</button>
+</div>
+<div class="card-section">
+<div class="card-label">💌 الوجه الخلفي — كلمتك لغلو</div>
+<div class="card-frame"><canvas id="backCanvas" class="card-canvas" width="1600" height="1000"></canvas></div>
+<button class="primary" style="width:100%" id="downloadBack">⬇ تحميل الوجه الخلفي</button>
+</div>
+<div class="actions">
+<button class="secondary" id="edit">تعديل البيانات</button>
+<button class="primary" id="downloadBoth">⬇ تحميل الوجهين</button>
+</div>
+</section>
+
+<section id="chatPage" class="hidden">
+<h2>👑 مجلس غلو الذكي</h2>
+<p class="sub">مجلسك للسوالف عن غلو، وكتابة عبارات الحب والمدح لها ❤️</p>
+<div id="chatBox">
+<div class="chat-bubble chat-ai">يا هلا والله بمحب غلو! 👑❤️ نورت المجلس! خلنا نسولف عن غلو. وش أكثر شيء يعجبك فيها؟</div>
+</div>
+<div class="chat-input-row">
+<input id="chatInput" maxlength="2000" placeholder="اكتب رسالتك هنا...">
+<button class="primary" id="sendChat">إرسال</button>
+</div>
+<p class="hint" id="chatStatus">مجلس غلو الذكي ❤️</p>
+<div class="actions"><button class="secondary" onclick="closeChat()">← العودة للموقع</button></div>
+</section>
+
+<footer>© نادي معجبين غلو • عضوية ترفيهية غير رسمية ♥</footer>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+let uploadedImage=null,memberNumber='';
+let chatHistory=[];
+
+const front=$('front'),backCanvas=$('backCanvas');
+const fctx=front.getContext('2d'),bctx=backCanvas.getContext('2d');
+
+function showPage(n){
+[1,2,3].forEach(i=>{
+$('p'+i).classList.toggle('hidden',i!==n);
+$('s'+i).classList.toggle('active',i===n);
+});
+$('steps').classList.remove('hidden');
+}
+
+$('photo').addEventListener('change',e=>{
+const file=e.target.files[0];
+if(!file)return;
+if(!file.type.startsWith('image/')){
+alert('اختر صورة صالحة.');e.target.value='';return;
+}
+const reader=new FileReader();
+reader.onload=event=>{
+const img=new Image();
+img.onload=()=>uploadedImage=img;
+img.onerror=()=>alert('تعذر فتح الصورة.');
+img.src=event.target.result;
+};
+reader.readAsDataURL(file);
+});
+
+$('next').onclick=()=>{
+for(const field of $('p1').querySelectorAll('[required]')){
+if(!field.checkValidity()){field.reportValidity();return;}
+}
+if(!uploadedImage){alert('اختر الصورة وانتظر تحميلها.');return;}
+showPage(2);
+};
+$('back').onclick=()=>showPage(1);
+$('agree').onchange=()=>{$('submit').disabled=!$('agree').checked};
+
+function generateMemberNumber(){
+return 'GH-'+Date.now().toString().slice(-8)+'-'+Math.floor(1000+Math.random()*9000);
+}
+function roundRect(ctx,x,y,w,h,r,fill,stroke){
+ctx.beginPath();ctx.roundRect(x,y,w,h,r);
+if(fill){ctx.fillStyle=fill;ctx.fill();}
+if(stroke){ctx.strokeStyle=stroke;ctx.stroke();}
+}
+function text(ctx,value,x,y,size,color,weight='700',align='right'){
+ctx.fillStyle=color;ctx.font=`${weight} ${size}px Cairo,sans-serif`;
+ctx.textAlign=align;ctx.textBaseline='alphabetic';ctx.direction='rtl';
+ctx.fillText(value,x,y);
+}
+function drawBase(ctx,W,H){
+const bg=ctx.createLinearGradient(0,0,W,H);
+bg.addColorStop(0,'#6b0d20');bg.addColorStop(.55,'#310610');bg.addColorStop(1,'#4a0817');
+ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+ctx.strokeStyle='#e9c99c';ctx.lineWidth=5;
+ctx.beginPath();ctx.roundRect(20,20,W-40,H-40,55);ctx.stroke();
+ctx.strokeStyle='#e9c99c55';ctx.lineWidth=4;
+ctx.beginPath();ctx.moveTo(20,850);ctx.lineTo(200,1000);ctx.moveTo(20,900);ctx.lineTo(130,1000);ctx.moveTo(20,950);ctx.lineTo(80,1000);ctx.stroke();
+}
+function drawCrown(ctx,x,y,scale=1){
+ctx.save();ctx.translate(x,y);ctx.scale(scale,scale);
+ctx.strokeStyle='#e9c99c';ctx.lineWidth=8;ctx.lineJoin='round';
+ctx.beginPath();ctx.moveTo(-100,35);ctx.lineTo(-115,-35);ctx.lineTo(-55,0);ctx.lineTo(0,-95);ctx.lineTo(55,0);ctx.lineTo(115,-35);ctx.lineTo(100,35);ctx.quadraticCurveTo(0,20,-100,35);ctx.closePath();ctx.stroke();
+ctx.beginPath();ctx.moveTo(-100,50);ctx.quadraticCurveTo(0,35,100,50);ctx.stroke();
+ctx.restore();
+}
+function drawSeal(ctx,x,y){
+ctx.beginPath();ctx.arc(x,y,145,0,Math.PI*2);ctx.fillStyle='#650d20';ctx.fill();ctx.strokeStyle='#d82a48';ctx.lineWidth=8;ctx.stroke();
+ctx.beginPath();ctx.arc(x,y,112,0,Math.PI*2);ctx.strokeStyle='#e9c99c';ctx.lineWidth=3;ctx.stroke();
+text(ctx,'♥',x,y+35,110,'#e9a0a9','900','center');
+text(ctx,'معجبين غلو',x,y-105,28,'#f5dfbd','900','center');
+ctx.font='bold 22px sans-serif';ctx.fillStyle='#e9c99c';ctx.textAlign='center';ctx.fillText('FANS OF GHLO',x,y+115);
+text(ctx,'★',x-100,y+10,25,'#d82a48','900','center');text(ctx,'★',x+100,y+10,25,'#d82a48','900','center');
+}
+function drawGlobe(ctx,x,y){
+ctx.save();ctx.beginPath();ctx.arc(x,y,105,0,Math.PI*2);ctx.fillStyle='#650d20';ctx.fill();ctx.strokeStyle='#d82a48';ctx.lineWidth=4;ctx.stroke();
+ctx.beginPath();ctx.ellipse(x,y,175,45,-.15,0,Math.PI*2);ctx.stroke();
+ctx.beginPath();ctx.ellipse(x,y,145,65,.2,0,Math.PI*2);ctx.stroke();
+ctx.fillStyle='#a51a36';ctx.beginPath();ctx.moveTo(x-35,y-75);ctx.lineTo(x+15,y-90);ctx.lineTo(x+55,y-50);ctx.lineTo(x+25,y-15);ctx.lineTo(x+55,y+25);ctx.lineTo(x+15,y+65);ctx.lineTo(x-10,y+20);ctx.lineTo(x-55,y-5);ctx.closePath();ctx.fill();ctx.restore();
+}
+function drawFront(){
+const ctx=fctx,W=1600,H=1000,gold='#e9c99c',cream='#f5dfbd',red='#650d20';
+drawBase(ctx,W,H);
+const px=65,py=160,pw=520,ph=700;
+roundRect(ctx,px,py,pw,ph,24,gold);
+ctx.save();ctx.beginPath();ctx.roundRect(px+9,py+9,pw-18,ph-18,16);ctx.clip();
+if(uploadedImage){
+const scale=Math.max((pw-18)/uploadedImage.width,(ph-18)/uploadedImage.height);
+const dw=uploadedImage.width*scale,dh=uploadedImage.height*scale;
+ctx.drawImage(uploadedImage,px+9+(pw-18-dw)/2,py+9+(ph-18-dh)/2,dw,dh);
+}
+ctx.restore();
+drawCrown(ctx,1370,120,.85);
+text(ctx,'غلو، معجبين#',1260,175,100,cream,'900');
+ctx.strokeStyle=gold;ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(650,225);ctx.lineTo(1250,225);ctx.stroke();
+text(ctx,'بطاقة عضوية',1240,285,42,cream);
+text(ctx,'لأنك تستحق',1470,220,34,cream);
+text(ctx,'كل الحب',1470,275,34,cream);
+const fields=[
+['الاسم',$('nickname').value||$('name').value||'—','♟'],
+['العمر',$('age').value||'—','▦'],
+['الجنس',$('gender').value||'—','♂'],
+['رقم العضوية',memberNumber,'▤']
+];
+fields.forEach((field,i)=>{
+const y=350+i*125;
+roundRect(ctx,600,y,920,105,20,'#710f27','#a66d55');
+roundRect(ctx,620,y+8,550,89,16,cream);
+text(ctx,field[1],1120,y+66,43,red,'900');
+text(ctx,field[0],1370,y+65,35,cream);
+ctx.fillStyle=gold;ctx.font='48px sans-serif';ctx.textAlign='center';ctx.fillText(field[2],1460,y+72);
+});
+text(ctx,'معجب غلو',510,900,65,cream,'900');
+ctx.strokeStyle=gold;ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(110,925);ctx.lineTo(550,925);ctx.stroke();
+drawSeal(ctx,800,830);drawGlobe(ctx,1330,850);
+text(ctx,'معجبين غلو',1110,930,32,cream);
+text(ctx,'معك نعيش حبنا',1110,975,32,cream);
+}
+function drawBack(){
+const ctx=bctx,W=1600,H=1000,gold='#e9c99c',cream='#f5dfbd';
+drawBase(ctx,W,H);drawCrown(ctx,800,190,1.2);
+text(ctx,'كلمة إلى غلو',800,340,70,gold,'900','center');
+ctx.strokeStyle=gold;ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(250,385);ctx.lineTo(1350,385);ctx.stroke();
+roundRect(ctx,150,440,1300,350,30,'#4a0a18','#a87950');
+const message=$('message').value.trim()||'كل الحب والتقدير لغلو ♥';
+ctx.fillStyle=cream;ctx.font='bold 40px Cairo,sans-serif';ctx.textAlign='center';ctx.direction='rtl';
+const words=message.split(/\s+/);let lines=[],line='';
+for(const word of words){
+const test=line?line+' '+word:word;
+if(ctx.measureText(test).width>1120&&line){lines.push(line);line=word;}else line=test;
+}
+if(line)lines.push(line);
+lines.slice(0,5).forEach((line,i)=>ctx.fillText(line,800,540+i*65));
+text(ctx,'♥',800,875,100,gold,'900','center');
+text(ctx,'من معجبك: '+$('nickname').value,800,930,32,cream,'700','center');
+text(ctx,'رقم العضوية: '+memberNumber,1480,950,24,gold);
+drawGlobe(ctx,1260,250);
+}
+function drawCards(){drawFront();drawBack();}
+
+$('form').onsubmit=e=>{
+e.preventDefault();
+if(!$('agree').checked)return;
+if(!uploadedImage){alert('اختر صورة شخصية أولًا.');showPage(1);return;}
+memberNumber=generateMemberNumber();
+$('success').textContent='أهلًا بك يا '+$('nickname').value+' في نادي معجبين غلو! 👑';
+drawCards();showPage(3);
+};
+$('edit').onclick=()=>showPage(1);
+function downloadCanvas(canvas,filename){
+canvas.toBlob(blob=>{
+if(!blob){alert('تعذر إنشاء الصورة.');return;}
+const url=URL.createObjectURL(blob),a=document.createElement('a');
+a.href=url;a.download=filename;a.click();
+setTimeout(()=>URL.revokeObjectURL(url),2000);
+},'image/png');
+}
+$('downloadFront').onclick=()=>{drawFront();downloadCanvas(front,'غلو-الوجه-الأمامي.png');};
+$('downloadBack').onclick=()=>{drawBack();downloadCanvas(backCanvas,'غلو-الوجه-الخلفي.png');};
+$('downloadBoth').onclick=()=>{drawCards();downloadCanvas(front,'غلو-الوجه-الأمامي.png');setTimeout(()=>downloadCanvas(backCanvas,'غلو-الوجه-الخلفي.png'),700);};
+
+function openChat(){
+['p1','p2','p3'].forEach(id=>$(id).classList.add('hidden'));
+$('steps').classList.add('hidden');$('chatPage').classList.remove('hidden');$('chatInput').focus();
+}
+function closeChat(){$('chatPage').classList.add('hidden');showPage(1);}
+function addChatMessage(message,type){
+const bubble=document.createElement('div');
+bubble.className='chat-bubble '+(type==='user'?'chat-user':'chat-ai');
+bubble.textContent=message;$('chatBox').appendChild(bubble);$('chatBox').scrollTop=$('chatBox').scrollHeight;
+}
+async function sendChat(){
+const input=$('chatInput'),message=input.value.trim();
+if(!message)return;
+addChatMessage(message,'user');input.value='';
+const button=$('sendChat'),status=$('chatStatus');
+button.disabled=true;status.textContent='مجلس غلو يكتب لك... ❤️';
+try{
+const response=await fetch('/api/chat',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({message,history:chatHistory})
+});
+const data=await response.json();
+if(!response.ok)throw new Error(data.error||'تعذر الاتصال');
+addChatMessage(data.reply,'ai');
+chatHistory.push({role:'user',content:message},{role:'assistant',content:data.reply});
+chatHistory=chatHistory.slice(-20);
+status.textContent='مجلس غلو الذكي ❤️';
+}catch(error){
+status.textContent='تعذر الاتصال بالذكاء الاصطناعي. تأكد من تشغيل الخادم.';
+}finally{button.disabled=false;input.focus();}
+}
+$('sendChat').onclick=sendChat;
+$('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter')sendChat();});
+</script>
+</body>
+</html>
